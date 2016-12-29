@@ -5,7 +5,7 @@ import java.util.UUID;
 import redis.clients.jedis.Jedis;
 
 public class RedisLocker {
-	private static final String LOCKKEY_PREFIX = "jedis.lock.";
+	private static final String LOCKKEY_PREFIX = "lock:";
 	private Jedis jedis;
 	private static final String SETNX_SCRIPT = "local key = KEYS[1] local ttl = KEYS[2]  local content = KEYS[3] local lockSet = redis.call('setnx', key, content)  if lockSet == 1 then redis.call('expire', key, ttl) end return lockSet ";
 	private static final String DELANDEDQUAL_SCRIPT = "local key = KEYS[1] local value = KEYS[2] local rel = 0 local lockValue = redis.call('get', key) if lockValue == value then rel = redis.call('del', key) end return rel";
@@ -21,9 +21,9 @@ public class RedisLocker {
 
 	/** 不存在就设值，并且设置过期时间，原子操作 */
 	public boolean setNxEx(String key, String value, long seconds) {
-		long a = ((Long) jedis.evalsha(SETNX_SCRIPT_SHA, 3, key, seconds + "", value)).longValue();
-		return a == 1L;
-
+		String set = jedis.set(key, value, "nx", "ex", seconds);
+		//long a = ((Long) jedis.evalsha(SETNX_SCRIPT_SHA, 3, key, seconds + "", value)).longValue();
+		return "OK".equals(set);
 	}
 
 	/**
@@ -54,6 +54,8 @@ public class RedisLocker {
 				Thread.sleep(35);
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
+			}finally{
+				
 			}
 		}
 		lock = new OwnerLock(lockKey, value);

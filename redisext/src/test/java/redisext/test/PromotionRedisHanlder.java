@@ -14,7 +14,7 @@ import redis.clients.util.Pool;
 
 public class PromotionRedisHanlder {
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main1(String[] args) throws InterruptedException {
 
 		SimpleRedisSplittingPool pool = new SimpleRedisSplittingPool();
 		Pool<Jedis> jedisPool = new JedisPool("10.1.0.208", 6379);
@@ -48,5 +48,8 @@ public class PromotionRedisHanlder {
 			t.start();
 		}
 
+	}
+	public static void main(String[] args) {
+		
 	}
 }
