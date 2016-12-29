@@ -16,13 +16,13 @@ import redis.clients.util.Pool;
 
 public class PromotionRedisHanlder {
 
-	public static void main1(String[] args) throws InterruptedException {
+	public static void main1(String[] args) throws InterruptedException {/*
 
 		SimpleRedisSplittingPool pool = new SimpleRedisSplittingPool();
 		Pool<Jedis> jedisPool = new JedisPool("10.1.0.208", 6379);
 		pool.setReadJedisPool(new JedisPool("10.1.0.209", 6379));
 		pool.setWriteJedisPool(jedisPool);
-		RedisLocker redisLocker = new RedisLocker(pool);
+		//RedisLocker redisLocker = new RedisLocker(pool);
 		OwnerLock lock = redisLocker.tryLock("hwf111", 1);
 		if (lock != null) {
 			System.out.println("lock=OK:hwf=" + lock.getValue());
@@ -48,12 +48,11 @@ public class PromotionRedisHanlder {
 				}
 			};
 			t.start();
-		}
+		}*/
 
 	}
 	public static void main(String[] args) {
 		JedisPoolConfig config = new JedisPoolConfig();
-		//config.set
 		JedisPool pool = new JedisPool(config, "127.0.0.1", 6379);
 		RedisProxy jedis = new RedisProxy(pool);
 		final RedisLocker locker = new RedisLocker(jedis,0);
@@ -64,7 +63,7 @@ public class PromotionRedisHanlder {
 				if(tryLock!=null){
 					System.out.println("1 拿到锁");
 					try {
-						Thread.sleep(10000);
+						Thread.sleep(3000);
 					} catch (InterruptedException e) {
 						
 					}
@@ -76,7 +75,7 @@ public class PromotionRedisHanlder {
 		Thread thread2 = new Thread(){
 			@Override
 			public void run() {
-				OwnerLock tryLock = locker.tryLock("hwf",20);
+				OwnerLock tryLock = locker.tryLock("hwf",60000);
 				if(tryLock!=null){
 					System.out.println("2 拿到锁");
 					try {

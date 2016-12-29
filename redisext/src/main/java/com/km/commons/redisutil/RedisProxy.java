@@ -52,15 +52,19 @@ public class RedisProxy implements InvocationHandler {
 			if (method.getName().equals("close")) {
 				return null;
 			}
+			if(method.getName().equals("toString")){
+				return this.toString();
+			}
+			//System.out.println("jedis method name:"+method.getName());
 			Jedis jedis = null;
 			try {
 				jedis = pool.getResource();
-				System.out.println("invoke:"+jedis);
+				//System.out.println("get jedis invoke:"+jedis);
 				Object result = method.invoke(jedis, args);
 				return result;
 			} finally {
 				if (jedis != null) {
-					//jedis.c
+					System.out.println("close jedis:"+jedis);
 					jedis.close();
 				}
 			}
