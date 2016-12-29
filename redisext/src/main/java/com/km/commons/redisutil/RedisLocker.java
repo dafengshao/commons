@@ -15,10 +15,10 @@ public class RedisLocker {
 	//10分钟 发生死锁后多长时间自动恢复
 	private static int DEFAUL_LOCKTIME = 60 * 10;
 
-	public RedisLocker(SimpleRedisSplittingPool redisPool) {
+	/*public RedisLocker(SimpleRedisSplittingPool redisPool) {
 		this.jedis = redisPool.getResource();
 		init();
-	}
+	}*/
 	
 	public RedisLocker(RedisProxy jedis,int locktime) {
 		if(locktime>0){
