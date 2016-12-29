@@ -1,9 +1,12 @@
 package com.km.commons.redisutil;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 
+
+import java.lang.reflect.Method;
+
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.InvocationHandler;
+import net.sf.cglib.proxy.Proxy;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCommands;
 import redis.clients.jedis.JedisPool;
@@ -39,7 +42,7 @@ public class RedisProxy implements InvocationHandler {
 		public static void main(String[] args) {
 			JedisPoolConfig config = new JedisPoolConfig();
 			JedisPool pool = new JedisPool(config, "127.0.0.1", 6379);
-			JedisCommands jedis = (JedisCommands) new RedisProxy(pool).getProxy();
+			Jedis jedis = (Jedis) new RedisProxy(pool).getProxy();
 			String set = jedis.set("hwf","12","nx","ex",100);
 			System.out.println(set);
 		}
@@ -52,18 +55,23 @@ public class RedisProxy implements InvocationHandler {
 			Jedis jedis = null;
 			try {
 				jedis = pool.getResource();
+				System.out.println("invoke:"+jedis);
 				Object result = method.invoke(jedis, args);
 				return result;
 			} finally {
 				if (jedis != null) {
+					//jedis.c
 					jedis.close();
 				}
 			}
 		}
 
-		public JedisCommands getProxy() {
-			return (JedisCommands) Proxy.newProxyInstance(Thread.currentThread()
-					.getContextClassLoader(), Jedis.class.getInterfaces(), this);
+		public Jedis getProxy() {
+			Enhancer enhancer = new Enhancer();
+			enhancer.setSuperclass(Jedis.class);
+			enhancer.setCallback(this);
+			Jedis jedisProxy = (Jedis) enhancer.create(new Class[] { String.class }, new Object[] { new String() });
+			return jedisProxy;
 		}
 
 }
