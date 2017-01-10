@@ -6,9 +6,7 @@ import java.lang.reflect.Method;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.InvocationHandler;
-import net.sf.cglib.proxy.Proxy;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisCommands;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 

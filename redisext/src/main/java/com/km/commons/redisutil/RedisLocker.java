@@ -19,7 +19,7 @@ public class RedisLocker {
 		this.jedis = redisPool.getResource();
 		init();
 	}*/
-	
+	/**locktime发生死锁后多长时间自动恢复 单位s*/
 	public RedisLocker(RedisProxy jedis,int locktime) {
 		if(locktime>0){
 			DEFAUL_LOCKTIME = locktime;
@@ -40,7 +40,7 @@ public class RedisLocker {
 	}
 
 	/**
-	 * 给指定参数加锁，需要调用release释放+ *
+	 * 给指定参数加锁，需要调用release释放 *
 	 * 
 	 * @param key
 	 *            锁定的key
@@ -49,15 +49,19 @@ public class RedisLocker {
 	 * @return null失败，OwnerLock成功，返回结果需要在释放时使用
 	 * @throws InterruptedException
 	 */
-	public OwnerLock tryLock(String key, int timeOut) {
+	public OwnerLock tryLock(String key, long timeOut) {
 		long waitEndTime = System.currentTimeMillis() + (timeOut);
 		OwnerLock lock = null;
 		while((lock = this.tryLock(key))==null){
-			System.out.println("retry lock ...");
 			long currTime = System.currentTimeMillis();
 			if (waitEndTime < currTime) {// 加锁失败 等待超时
 				// LOG.error("key:{}加锁失败,等待超时!", key);
 				return null;
+			}
+			try {
+				Thread.sleep(101);
+			} catch (InterruptedException e) {
+				
 			}
 		}
 		return lock;
@@ -102,9 +106,16 @@ public class RedisLocker {
 				boolean ok = delOk.longValue() == 1;
 				if(ok){
 					return true;
+				}else{
+					return false;
 				}
+				
 			}catch(Exception e){
-				e.printStackTrace();
+				try {
+					Thread.sleep(101);
+				} catch (InterruptedException e1) {
+					
+				}
 			}
 			
 		}
